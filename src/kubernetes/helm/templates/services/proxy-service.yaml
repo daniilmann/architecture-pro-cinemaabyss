@@ -25,7 +25,37 @@ spec:
     spec:
       containers:
       - name: proxy-service
-        ..... тут
+        image: {{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}
+        imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.proxyService.service.targetPort }}
+        env:
+        - name: PORT
+          value: "{{ .Values.proxyService.service.targetPort }}"
+        - name: MONOLITH_URL
+          value: "http://monolith:8080"
+        - name: MOVIES_SERVICE_URL
+          value: "http://movies-service:8081"
+        - name: EVENTS_SERVICE_URL
+          value: "http://events-service:8082"
+        - name: GRADUAL_MIGRATION
+          value: "{{ .Values.config.gradualMigration }}"
+        - name: MOVIES_MIGRATION_PERCENT
+          value: "{{ .Values.config.moviesMigrationPercent }}"
+        resources:
+          {{- toYaml .Values.proxyService.resources | nindent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.proxyService.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.proxyService.service.targetPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service
@@ -38,5 +68,9 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    ... и тут
+    app: proxy-service
+  ports:
+  - port: {{ .Values.proxyService.service.port }}
+    targetPort: {{ .Values.proxyService.service.targetPort }}
+  type: {{ .Values.proxyService.service.type }}
 {{- end }}

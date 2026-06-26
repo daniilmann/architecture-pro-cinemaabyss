@@ -1,0 +1,112 @@
+@startuml cinemaabyss_to_be_container
+!include <C4/C4_Container>
+
+' c4plantuml-state: target
+' c4plantuml-scope: CinemaAbyss container diagram, to-be architecture
+' c4plantuml-evidence: C4E-0001,C4E-0002,C4E-0003,C4E-0004,C4E-0005
+' C4E-0001: source sketch docs/architecture/c4/cinemaabysstobe.png shows client apps, API Gateway, domain services, Kafka, Cloud IAM, RabbitMQ and recommendation system.
+' C4E-0002: README.md describes API Gateway, Strangler Fig migration, Movies Service, Events Service, Kafka, Kubernetes and CI/CD.
+' C4E-0003: docker-compose.yml defines postgres, kafka, monolith, movies-service, events-service, proxy-service and kafka-ui.
+' C4E-0004: src/monolith/main.go exposes users, movies, payments and subscriptions API endpoints backed by PostgreSQL.
+' C4E-0005: src/microservices/movies/main.go exposes movie metadata API backed by PostgreSQL.
+
+LAYOUT_TOP_DOWN()
+title CinemaAbyss - To-Be Container Diagram
+
+Person(user, "Пользователь", "Смотрит фильмы, управляет профилем, подпиской и оплатами.")
+
+System_Ext(cloud_iam, "Cloud IAM", "Внешний провайдер идентификации и авторизации.")
+System_Ext(payment_provider, "Платежная система", "Внешний провайдер приема и обработки платежей.")
+System_Ext(content_providers, "Внешние кинотеатры и открытые источники", "Поставщики контента, доступного пользователям по единой подписке CinemaAbyss.")
+System_Ext(rabbitmq, "RabbitMQ", "Внешний брокер для интеграции рекомендательного контура.")
+System_Ext(recommendation_system, "Рекомендательная система", "Внешняя система персональных рекомендаций.")
+
+System_Boundary(cinemaabyss, "КиноБездна") {
+  Container(web_app, "Веб-приложение", "Web", "Пользовательский интерфейс для браузера.")
+  Container(mobile_app, "Мобильное приложение", "Mobile", "Пользовательский интерфейс для iOS/Android.")
+  Container(smart_tv_app, "Smart TV приложение", "Smart TV", "Пользовательский интерфейс для телевизоров.")
+
+  Container(api_gateway, "API Gateway", "Go / HTTP", "Единая точка входа, маршрутизация и Strangler Fig переключение трафика.")
+
+  Container(payment_service, "Payment Service", "Go", "Платежи и история транзакций.")
+  Container(streaming_service, "Streaming Service", "Go", "Playback-сессии, проверка доступа к просмотру и запуск просмотра у внешних поставщиков.")
+  Container(films_service, "Films Service", "Go", "Агрегированные метаданные фильмов, жанры, актеры, рейтинги и provider mapping.")
+  Container(subscription_service, "Subscription Service", "Go", "Подписки, тарифы, скидки и правила доступа.")
+  Container(users_service, "Users Service", "Go", "Профили пользователей и учетные данные приложения.")
+  Container(recommendation_service, "Recommendation Adapter", "Service", "ACL к внешней рекомендательной системе и RabbitMQ-контракту.")
+
+  ContainerQueue(kafka, "Kafka", "Apache Kafka", "Доменные события: movie-events, user-events, payment-events.")
+
+  Boundary(postgres_cluster, "PostgreSQL Cluster", "Database cluster") {
+    ContainerDb(payment_db, "Payment DB", "PostgreSQL", "Приватная БД платежей.")
+    ContainerDb(streaming_db, "Streaming DB", "PostgreSQL", "Приватная БД playback-сессий.")
+    ContainerDb(films_db, "Films DB", "PostgreSQL", "Приватная БД метаданных фильмов.")
+    ContainerDb(subscription_db, "Subscription DB", "PostgreSQL", "Приватная БД подписок, тарифов и скидок.")
+    ContainerDb(users_db, "Users DB", "PostgreSQL", "Приватная БД профилей пользователей.")
+  }
+}
+
+Rel(user, web_app, "Использует")
+Rel(user, mobile_app, "Использует")
+Rel(user, smart_tv_app, "Использует")
+
+Rel(web_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+Rel(mobile_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+Rel(smart_tv_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+
+Rel(web_app, cloud_iam, "Аутентифицируется и получает JWT", "OIDC/OAuth2")
+Rel(mobile_app, cloud_iam, "Аутентифицируется и получает JWT", "OIDC/OAuth2")
+Rel(smart_tv_app, cloud_iam, "Аутентифицируется и получает JWT", "OIDC/OAuth2")
+
+Rel(api_gateway, cloud_iam, "Валидирует JWT/JWKS на входе", "OIDC/OAuth2")
+Rel(users_service, cloud_iam, "Синхронизирует identity mapping и профиль", "OIDC/Admin API")
+
+Rel(api_gateway, payment_service, "Маршрутизирует платежные запросы", "HTTP/JSON")
+Rel(api_gateway, streaming_service, "Маршрутизирует streaming-запросы", "HTTP/JSON")
+Rel(api_gateway, films_service, "Маршрутизирует запросы фильмов", "HTTP/JSON")
+Rel(api_gateway, subscription_service, "Маршрутизирует запросы подписок, тарифов и скидок", "HTTP/JSON")
+Rel(api_gateway, users_service, "Маршрутизирует запросы пользователей", "HTTP/JSON")
+Rel(api_gateway, recommendation_service, "Запрашивает персональные рекомендации", "HTTP/JSON")
+
+Rel(payment_service, subscription_service, "Получает тарифы, скидки и данные подписки для расчета платежа", "HTTP/JSON")
+Rel(payment_service, payment_provider, "Создает платежи и получает статусы транзакций", "HTTPS/API")
+Rel(streaming_service, subscription_service, "Проверяет право пользователя на просмотр", "HTTP/JSON")
+Rel(streaming_service, films_service, "Получает metadata/media identifiers фильма", "HTTP/JSON")
+
+Rel(films_service, content_providers, "Синхронизирует каталог, метаданные и доступность контента", "Provider API")
+Rel(streaming_service, content_providers, "Инициирует просмотр и получает playback URL/token", "Provider API")
+Rel(web_app, content_providers, "Открывает поток просмотра по URL/token", "HTTPS/HLS-DASH")
+Rel(mobile_app, content_providers, "Открывает поток просмотра по URL/token", "HTTPS/HLS-DASH")
+Rel(smart_tv_app, content_providers, "Открывает поток просмотра по URL/token", "HTTPS/HLS-DASH")
+
+Rel(payment_service, payment_db, "Читает и пишет платежи", "SQL")
+Rel(streaming_service, streaming_db, "Читает и пишет playback-сессии", "SQL")
+Rel(films_service, films_db, "Читает и пишет фильмы, жанры, актеров, рейтинги", "SQL")
+Rel(subscription_service, subscription_db, "Читает и пишет подписки, тарифы и скидки", "SQL")
+Rel(users_service, users_db, "Читает и пишет профили", "SQL")
+
+note right of postgres_cluster
+  Физический PostgreSQL cluster может быть общим,
+  но каждая БД логически приватна для своего сервиса.
+  Сервисы не обращаются к чужим БД напрямую.
+end note
+
+Rel(payment_service, kafka, "Публикует payment-events", "Kafka")
+Rel(streaming_service, kafka, "Публикует view-events", "Kafka")
+Rel(films_service, kafka, "Публикует movie-events", "Kafka")
+Rel(subscription_service, kafka, "Публикует subscription-events", "Kafka")
+Rel(users_service, kafka, "Публикует user-events", "Kafka")
+
+Rel(kafka, recommendation_service, "Передает события поведения", "Kafka consumer")
+Rel(recommendation_service, rabbitmq, "Обменивается задачами рекомендаций", "AMQP")
+Rel(rabbitmq, recommendation_system, "Доставляет задания и результаты", "AMQP")
+
+note right of recommendation_service
+  ACL: изолирует доменную модель CinemaAbyss от
+  недорабатываемой внешней рекомендательной системы,
+  переводит Kafka-события в RabbitMQ-контракт и
+  отдает рекомендации через API Gateway.
+end note
+
+SHOW_LEGEND()
+@enduml

@@ -5,7 +5,8 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+
+[PlantUML container diagram](docs/architecture/c4/cinemaabyss-to-be-container.puml)
 
 
 ## Задание 2
@@ -47,6 +48,10 @@
    ```
 - Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
 
+### Выполнение
+- [PlantUML migration container diagram](docs/architecture/c4/cinemaabyss-migration-api-gateway-component.puml) - код схемы реализовывал агент по моему описанию, я валидировал
+- Сервис реализовывал агент по моему описанию и доке проекта
+
 ### 2. Kafka
  Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
 
@@ -58,6 +63,28 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+
+### Выполнение
+- Сервис писал агент
+- Постманом дергал и проверял в ui я
+
+Скриншоты проверки:
+
+- [Postman: health check events service](docs/screenshots/postman-events-health-check.png)
+- [Postman: создание movie event, movie_id=1, user_id=1](docs/screenshots/postman-create-movie-event-user-1-movie-1.png)
+- [Postman: создание movie event, movie_id=2, user_id=1](docs/screenshots/postman-create-movie-event-user-1-movie-2.png)
+- [Postman: создание movie event, movie_id=2, user_id=2, offset=4](docs/screenshots/postman-create-movie-event-user-2-movie-2-offset-4.png)
+- [Postman: создание movie event, movie_id=2, user_id=2, offset=5](docs/screenshots/postman-create-movie-event-user-2-movie-2-offset-5.png)
+- [Postman: создание user event](docs/screenshots/postman-create-user-event.png)
+- [Kafka UI: сообщения user-events](docs/screenshots/kafka-ui-user-events-messages.png)
+- [Kafka UI: сообщения movie-events с раскрытым событием](docs/screenshots/kafka-ui-movie-events-expanded.png)
+- [Kafka UI: список сообщений movie-events](docs/screenshots/kafka-ui-movie-events-list.png)
+- [Kafka UI: список сообщений user-events](docs/screenshots/kafka-ui-user-events-list.png)
+- [Postman: создание payment event, user_id=2](docs/screenshots/postman-create-payment-event-user-2.png)
+- [Postman: создание payment event, user_id=1](docs/screenshots/postman-create-payment-event-user-1.png)
+- [Kafka UI: сообщения payment-events](docs/screenshots/kafka-ui-payment-events-messages.png)
+- [Kafka UI: список топиков](docs/screenshots/kafka-ui-topics-list.png)
+- [Kafka UI: internal topic __consumer_offsets](docs/screenshots/kafka-ui-consumer-offsets-overview.png)
 
 
 ## Задание 3

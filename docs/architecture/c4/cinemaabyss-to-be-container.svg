@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">CinemaAbyss To-Be C4 Container Diagram</title>
+  <desc id="desc">C4 container diagram for CinemaAbyss based on the supplied to-be sketch.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .boundary { fill: #f8fafc; stroke: #475569; stroke-width: 2; stroke-dasharray: 10 8; }
+      .person { fill: #77c7e8; stroke: #2563eb; stroke-width: 2; }
+      .container { fill: #9fc2f5; stroke: #2f5f9f; stroke-width: 2; }
+      .queue { fill: #b6d8ff; stroke: #2563eb; stroke-width: 2; }
+      .db { fill: #b6d8ff; stroke: #2563eb; stroke-width: 2; }
+      .external { fill: #7bd6c9; stroke: #0f766e; stroke-width: 2; }
+      .line { fill: none; stroke: #374151; stroke-width: 2.2; marker-end: url(#arrow); }
+      .thin { stroke-width: 1.7; }
+      .label { font-family: Arial, sans-serif; fill: #111827; text-anchor: middle; }
+      .small { font-size: 15px; }
+      .medium { font-size: 18px; font-weight: 700; }
+      .tech { font-size: 14px; fill: #374151; }
+      .title { font-size: 28px; font-weight: 700; text-anchor: middle; }
+      .boundary-title { font-size: 22px; font-weight: 700; fill: #334155; }
+      .rel { font-size: 13px; fill: #334155; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1100"/>
+  <text class="label title" x="800" y="44">CinemaAbyss - To-Be Container Diagram</text>
+
+  <rect class="person" x="700" y="70" width="200" height="90" rx="6"/>
+  <text class="label medium" x="800" y="108">Пользователь</text>
+  <text class="label tech" x="800" y="132">Person</text>
+
+  <rect class="boundary" x="80" y="210" width="1320" height="820" rx="4"/>
+  <text class="label boundary-title" x="740" y="242">КиноБездна</text>
+
+  <rect class="container" x="285" y="295" width="180" height="105" rx="4"/>
+  <text class="label medium" x="375" y="334">Веб-приложение</text>
+  <text class="label tech" x="375" y="360">Container: Web</text>
+
+  <rect class="container" x="710" y="295" width="180" height="105" rx="4"/>
+  <text class="label medium" x="800" y="326">Мобильное</text>
+  <text class="label medium" x="800" y="350">приложение</text>
+  <text class="label tech" x="800" y="375">Container: Mobile</text>
+
+  <rect class="container" x="1135" y="295" width="180" height="105" rx="4"/>
+  <text class="label medium" x="1225" y="334">Smart TV</text>
+  <text class="label tech" x="1225" y="360">Container</text>
+
+  <rect class="container" x="700" y="485" width="200" height="120" rx="4"/>
+  <text class="label medium" x="800" y="523">API Gateway</text>
+  <text class="label tech" x="800" y="550">Container: Go / HTTP</text>
+  <text class="label small" x="800" y="576">Strangler Fig routing</text>
+
+  <rect class="external" x="1440" y="480" width="140" height="100" rx="4"/>
+  <text class="label medium" x="1510" y="520">Cloud IAM</text>
+  <text class="label tech" x="1510" y="546">External System</text>
+
+  <rect class="container" x="120" y="690" width="170" height="105" rx="4"/>
+  <text class="label medium" x="205" y="728">Payment</text>
+  <text class="label medium" x="205" y="750">Service</text>
+  <text class="label tech" x="205" y="775">Container: Go</text>
+
+  <rect class="container" x="380" y="690" width="170" height="105" rx="4"/>
+  <text class="label medium" x="465" y="728">Streaming</text>
+  <text class="label medium" x="465" y="750">Service</text>
+  <text class="label tech" x="465" y="775">Container: Go</text>
+
+  <rect class="container" x="640" y="690" width="170" height="105" rx="4"/>
+  <text class="label medium" x="725" y="728">Films</text>
+  <text class="label medium" x="725" y="750">Service</text>
+  <text class="label tech" x="725" y="775">Container: Go</text>
+
+  <rect class="container" x="900" y="690" width="170" height="105" rx="4"/>
+  <text class="label medium" x="985" y="728">Tariffs</text>
+  <text class="label medium" x="985" y="750">Service</text>
+  <text class="label tech" x="985" y="775">Container: Go</text>
+
+  <rect class="container" x="1160" y="690" width="170" height="105" rx="4"/>
+  <text class="label medium" x="1245" y="728">Users</text>
+  <text class="label medium" x="1245" y="750">Service</text>
+  <text class="label tech" x="1245" y="775">Container: Go</text>
+
+  <path class="db" d="M1130 870 C1130 845 1340 845 1340 870 L1340 945 C1340 970 1130 970 1130 945 Z"/>
+  <path class="thin" d="M1130 870 C1130 895 1340 895 1340 870" fill="none" stroke="#2563eb"/>
+  <text class="label medium" x="1235" y="908">PostgreSQL</text>
+  <text class="label tech" x="1235" y="932">Container DB</text>
+
+  <rect class="queue" x="700" y="875" width="200" height="105" rx="4"/>
+  <text class="label medium" x="800" y="915">Kafka</text>
+  <text class="label tech" x="800" y="942">Container Queue</text>
+
+  <rect class="container" x="350" y="875" width="210" height="105" rx="4"/>
+  <text class="label medium" x="455" y="912">Recommendation</text>
+  <text class="label medium" x="455" y="934">Service</text>
+  <text class="label tech" x="455" y="958">Container</text>
+
+  <rect class="external" x="360" y="1035" width="190" height="52" rx="4"/>
+  <text class="label medium" x="455" y="1068">RabbitMQ</text>
+
+  <rect class="external" x="610" y="1035" width="250" height="52" rx="4"/>
+  <text class="label medium" x="735" y="1057">Рекомендательная</text>
+  <text class="label medium" x="735" y="1077">система</text>
+
+  <path class="line" d="M760 160 C690 220 460 235 390 295"/>
+  <path class="line" d="M800 160 L800 295"/>
+  <path class="line" d="M840 160 C910 220 1140 235 1210 295"/>
+
+  <path class="line" d="M375 400 C380 450 675 450 740 485"/>
+  <path class="line" d="M800 400 L800 485"/>
+  <path class="line" d="M1225 400 C1220 450 925 450 860 485"/>
+  <text class="label rel" x="610" y="460">HTTPS/JSON</text>
+  <text class="label rel" x="990" y="460">HTTPS/JSON</text>
+
+  <path class="line" d="M900 545 L1440 530"/>
+  <path class="line" d="M1330 690 C1410 650 1475 610 1510 580"/>
+
+  <path class="line" d="M705 605 C620 650 310 620 220 690"/>
+  <path class="line" d="M745 605 C650 650 545 625 485 690"/>
+  <path class="line" d="M785 605 L735 690"/>
+  <path class="line" d="M825 605 L965 690"/>
+  <path class="line" d="M865 605 C965 650 1160 625 1230 690"/>
+  <text class="label rel" x="800" y="660">HTTP/JSON</text>
+
+  <path class="line" d="M205 795 C245 850 660 830 740 875"/>
+  <path class="line" d="M465 795 C500 850 690 835 760 875"/>
+  <path class="line" d="M725 795 L785 875"/>
+  <path class="line" d="M985 795 C940 850 865 835 820 875"/>
+  <path class="line" d="M1245 795 C1165 850 935 835 860 875"/>
+
+  <path class="line thin" d="M260 795 C440 835 1030 835 1150 885"/>
+  <path class="line thin" d="M510 795 C680 825 1040 825 1165 885"/>
+  <path class="line thin" d="M760 795 C890 835 1065 835 1180 885"/>
+  <path class="line thin" d="M1000 795 C1080 825 1140 830 1210 885"/>
+  <path class="line thin" d="M1245 795 L1240 870"/>
+  <text class="label rel" x="1115" y="850">SQL</text>
+
+  <path class="line" d="M700 930 L560 930"/>
+  <path class="line" d="M455 980 L455 1035"/>
+  <path class="line" d="M550 1061 L610 1061"/>
+  <text class="label rel" x="625" y="916">events</text>
+  <text class="label rel" x="580" y="1048">AMQP</text>
+</svg>

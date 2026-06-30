@@ -5,7 +5,8 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+
+[PlantUML container diagram](docs/architecture/c4/cinemaabyss-to-be-container.puml)
 
 
 ## Задание 2
@@ -47,6 +48,10 @@
    ```
 - Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
 
+### Выполнение
+- [PlantUML migration container diagram](docs/architecture/c4/cinemaabyss-migration-api-gateway-component.puml) - код схемы реализовывал агент по моему описанию, я валидировал
+- Сервис реализовывал агент по моему описанию и доке проекта
+
 ### 2. Kafka
  Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
 
@@ -58,6 +63,28 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+
+### Выполнение
+- Сервис писал агент
+- Постманом дергал и проверял в ui я
+
+Скриншоты проверки:
+
+- [Postman: health check events service](docs/screenshots/postman-events-health-check.png)
+- [Postman: создание movie event, movie_id=1, user_id=1](docs/screenshots/postman-create-movie-event-user-1-movie-1.png)
+- [Postman: создание movie event, movie_id=2, user_id=1](docs/screenshots/postman-create-movie-event-user-1-movie-2.png)
+- [Postman: создание movie event, movie_id=2, user_id=2, offset=4](docs/screenshots/postman-create-movie-event-user-2-movie-2-offset-4.png)
+- [Postman: создание movie event, movie_id=2, user_id=2, offset=5](docs/screenshots/postman-create-movie-event-user-2-movie-2-offset-5.png)
+- [Postman: создание user event](docs/screenshots/postman-create-user-event.png)
+- [Kafka UI: сообщения user-events](docs/screenshots/kafka-ui-user-events-messages.png)
+- [Kafka UI: сообщения movie-events с раскрытым событием](docs/screenshots/kafka-ui-movie-events-expanded.png)
+- [Kafka UI: список сообщений movie-events](docs/screenshots/kafka-ui-movie-events-list.png)
+- [Kafka UI: список сообщений user-events](docs/screenshots/kafka-ui-user-events-list.png)
+- [Postman: создание payment event, user_id=2](docs/screenshots/postman-create-payment-event-user-2.png)
+- [Postman: создание payment event, user_id=1](docs/screenshots/postman-create-payment-event-user-1.png)
+- [Kafka UI: сообщения payment-events](docs/screenshots/kafka-ui-payment-events-messages.png)
+- [Kafka UI: список топиков](docs/screenshots/kafka-ui-topics-list.png)
+- [Kafka UI: internal topic __consumer_offsets](docs/screenshots/kafka-ui-consumer-offsets-overview.png)
 
 
 ## Задание 3
@@ -274,6 +301,35 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+##### Выполнение
+- [Вывод https://cinemaabyss.example.com/api/movies через Kubernetes Ingress](docs/screenshots/kubernetes-api-movies-response.png).
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                22 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                22 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 0 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                42 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 3.1s                                       │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 6.71kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 23ms [min: 3ms, max: 230ms, s.d.: 45ms] │
+└────────────────────────────────────────────────────────────────┘
+Newman run completed!
+Total requests: 22
+Failed requests: 0
+Total assertions: 42
+Failed assertions: 0
+
+
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
@@ -349,6 +405,11 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+### Выполнение
+- [Установка Helm chart и состояние Pod'ов после развертывания](docs/screenshots/helm-install-and-kubernetes-pods.png).
+- [Вывод https://cinemaabyss.example.com/api/movies через Kubernetes Ingress](docs/screenshots/kubernetes-api-movies-response.png).
+
+
 
 # Задание 5
 Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
@@ -362,13 +423,13 @@ helm install istio-base istio/base -n istio-system --set defaultRevision=default
 helm install istio-ingressgateway istio/gateway -n istio-system
 helm install istiod istio/istiod -n istio-system --wait
 
-helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
+helm install cinemaabyss ./src/kubernetes/helm --namespace cinemaabyss --create-namespace
 
 kubectl label namespace cinemaabyss istio-injection=enabled --overwrite
 
 kubectl get namespace -L istio-injection
 
-kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
+kubectl apply -f ./src/kubernetes/circuit-breaker-config.yaml -n cinemaabyss
 
 ```
 
@@ -422,3 +483,9 @@ kubectl delete namespace istio-system
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+
+## Выполнение
+
+Скриншот срабатывания circuit breaker для `movies-service`:
+
+![Срабатывание circuit breaker для movies-service](docs/screenshots/istio-circuit-breaker-movies-service.png)

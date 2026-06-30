@@ -1,0 +1,54 @@
+@startuml cinemaabyss_migration_api_gateway_component
+!include <C4/C4_Container>
+
+' c4plantuml-state: mixed
+' c4plantuml-scope: CinemaAbyss intermediate migration diagram for adding Proxy/API Gateway before the monolith
+' c4plantuml-evidence: C4E-0001,C4E-0002,C4E-0003,C4E-0004
+' C4E-0001: Project_template.md task 2 requires a Proxy/API Gateway for Strangler Fig migration.
+' C4E-0002: docker-compose.yml defines proxy-service with MONOLITH_URL, GRADUAL_MIGRATION and MOVIES_MIGRATION_PERCENT.
+' C4E-0003: src/monolith/main.go exposes users, movies, payments and subscriptions API endpoints backed by PostgreSQL.
+' C4E-0004: docs/architecture/c4/cinemaabyss-to-be-container.puml models Web, Mobile and Smart TV applications as separate client containers.
+
+LAYOUT_LEFT_RIGHT()
+title CinemaAbyss - Intermediate Migration With API Gateway
+
+Person(user, "Пользователь", "Смотрит фильмы, управляет профилем, подпиской и оплатами.")
+
+System_Ext(payment_provider, "Платежная система", "Внешний провайдер приема и обработки платежей.")
+System_Ext(content_providers, "Онлайн-кинотеатры и источники контента", "Внешние поставщики контента и метаданных.")
+System_Ext(recommendation_system, "Внешняя рекомендательная система", "Внешняя система персональных рекомендаций.")
+
+System_Boundary(cinemaabyss, "КиноБездна") {
+  Container(web_app, "Веб-приложение", "Web", "Клиентское приложение для браузера.")
+  Container(mobile_app, "Мобильное приложение", "Mobile", "Клиентское приложение для iOS/Android.")
+  Container(smart_tv_app, "Smart TV приложение", "Smart TV", "Клиентское приложение для телевизоров.")
+
+  Container(api_gateway, "API Gateway / Proxy Service", "HTTP proxy", "Единая точка входа для приложений. Маршрутизирует запросы в монолит и подготавливает Strangler Fig миграцию.")
+  Container(monolith, "Основной сервис КиноБездны", "Go / HTTP", "Текущий монолит: пользователи, фильмы, платежи и подписки.")
+  ContainerDb(postgres, "PostgreSQL", "PostgreSQL", "Единая БД текущего монолита.")
+}
+
+Rel(user, web_app, "Использует")
+Rel(user, mobile_app, "Использует")
+Rel(user, smart_tv_app, "Использует")
+
+Rel(web_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+Rel(mobile_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+Rel(smart_tv_app, api_gateway, "Вызывает API", "HTTPS/JSON")
+
+Rel(api_gateway, monolith, "Проксирует текущие API-запросы", "HTTP/JSON")
+Rel(monolith, postgres, "Читает и пишет данные пользователей, фильмов, платежей и подписок", "SQL")
+
+Rel(monolith, payment_provider, "Создает платежи и получает статусы", "HTTPS/API")
+Rel(monolith, content_providers, "Получает каталог, метаданные и ссылки на просмотр", "Provider API")
+Rel(monolith, recommendation_system, "Обменивается данными для рекомендаций", "API/Queue")
+
+note right of api_gateway
+  На этом шаге API Gateway еще не показывает
+  целевые микросервисы внутри границы системы.
+  Его роль - закрыть приложения от монолита
+  и разблокировать последующее переключение доменов.
+end note
+
+SHOW_LEGEND()
+@enduml
